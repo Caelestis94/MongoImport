@@ -168,6 +168,9 @@ public static class Program
 
 	private static string GetDatabaseName(ref string file)
 	{
+		if(file is null)
+      return string.Empty;
+
 		return file.Split("\\")[1].Split(".")[0];
   }
 }

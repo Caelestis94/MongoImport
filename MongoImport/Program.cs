@@ -8,7 +8,9 @@ namespace MongoImport;
 
 public static class Program
 {
-	private static readonly MongoDbContext Context = new();
+
+
+	private static MongoDbContext Context = new MongoDbContext(null);
 
 	private static readonly string[] Files = GetFiles();
 
@@ -17,13 +19,36 @@ public static class Program
 
 	public static async Task Main(string[] args)
 	{
+		// get connection string from .env file
+		string connectionString = null;
+		try
+		{
+      var env = File.ReadAllLines(".env");
+      connectionString = env.FirstOrDefault(line => line.StartsWith("CONNECTION_STRING"));
+
+    }
+    catch (Exception)
+		{
+			// ignored
+		}
+
+		if (!string.IsNullOrEmpty(connectionString))
+		{
+      Context = new MongoDbContext(connectionString.Split("=")[1]);
+    }
+
 		var cliHeader = new FigletText("Initialisation de la base de données").Centered().Color(Color.Red);
 		AnsiConsole.Write(cliHeader);
+
+		Panel panel = new Panel($"[blue]Base de données : [/]\n{DatabaseName}\n[blue]Connection string: {(string.IsNullOrEmpty(connectionString)? Context.ConnectionString : connectionString.Split("=")[1])}[/]");
+		AnsiConsole.Write(panel);
     Panel filesInfo = new Panel($"[blue]Fichiers : [/]\n{string.Join("\n", Files)}")
       .Header("[green]Fichiers de données[/]")
       .Border(BoxBorder.Rounded)
       .Expand();
 		AnsiConsole.Write(filesInfo);
+
+		
 
     string response = AnsiConsole.Prompt(
 			new SelectionPrompt<string>()

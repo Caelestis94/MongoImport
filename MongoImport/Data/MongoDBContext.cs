@@ -10,9 +10,15 @@ public class MongoDbContext
 	
 	public MongoClient Client { get; }
 
-	public MongoDbContext()
+	public string ConnectionString { get; } = "mongodb://localhost:27017/";
+
+	public MongoDbContext(string connectionString)
 	{
-		Client = new MongoClient("mongodb://localhost:27017/TP2DB");
+		if (connectionString != null)
+		{
+      ConnectionString = connectionString;
+    }
+		Client = new MongoClient(ConnectionString);
 	}
 	
 }
